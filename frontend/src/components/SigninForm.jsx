@@ -29,10 +29,13 @@ const loginBox = {
 const SigninForm=(props) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
     // console.log(email);
 
     const login = async() => {
+        setErrorMessage("");
+
         const url = 'http://localhost:5005/admin/auth/login'
         const response = await fetch(url, {
             method: 'POST',
@@ -46,7 +49,9 @@ const SigninForm=(props) => {
         })
 
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            const data = await response.json();
+            setErrorMessage(data.error || `Login failed! Status: ${response.status}`);
+            return;
         }
 
         const data = await response.json()
@@ -55,8 +60,7 @@ const SigninForm=(props) => {
             props.setToken(data.token)
             navigate('/dashboard')
         }else {
-            console.log('error')
-            window.alert('error!') //window.alert
+            setErrorMessage('An error occurred, please try again.');
         }
         console.log(JSON.stringify({ email, password }));
     }
@@ -66,7 +70,8 @@ const SigninForm=(props) => {
         <div style={style}>
             <div style={loginBox}>
                 <h1 style={{ marginBottom: '20px', color: '#333' }}>Login</h1>
-               <TextField id="outlined-basic" label="email" variant="outlined" onChange={(e)=>setEmail(e.target.value)} /><br />
+                {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+                <TextField id="outlined-basic" label="email" variant="outlined" onChange={(e)=>setEmail(e.target.value)} /><br />
                 <TextField id="outlined-basic" label="password" variant="outlined" type="password" onChange={(e)=>setPassword(e.target.value)}/><br />
                 <Button variant="outlined" onClick={login} >submit</Button> 
             </div>

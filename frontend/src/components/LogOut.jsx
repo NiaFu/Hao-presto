@@ -21,8 +21,6 @@ const LogOut = (props) =>{
                     <>
                         <Button component = {Link} to = "/login" variant="contained">LOGIN</Button>
                         <Button component = {Link} to = "/register" variant="contained">REGISTER</Button>
-                        {/* <Link to="/login">LOGIN</Link><br />
-                        <Link to="/register">REGISTER</Link> */}
                     </>
                 ) : (
                     <>

@@ -15,7 +15,7 @@ const style = {
 }
 const RegistBox = {
     width: '500px',
-    height: '400px',
+    height: '500px',
     backgroundColor: '#ffffff',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     display: 'flex',
@@ -31,9 +31,18 @@ const SignupForm=(props) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
 
     const register = async() => {
+        setErrorMessage("");
+
+        if (password.trim() !== confirmPassword.trim()) {
+            setErrorMessage("Passwords do not match!");
+            return;
+        }
+
         const url = 'http://localhost:5005/admin/auth/register'
         const response = await fetch(url, {
             method: 'POST',
@@ -48,7 +57,9 @@ const SignupForm=(props) => {
         })
 
         if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            const data = await response.json();
+            setErrorMessage(data.error || `Registration failed! Status: ${response.status}`);
+            return;
         }
 
         const data = await response.json()
@@ -57,8 +68,7 @@ const SignupForm=(props) => {
             props.setToken(data.token)
             navigate('/dashboard')
         }else {
-            console.log('error')
-            window.alert('error!') //window.alert
+            setErrorMessage('An error occurred, please try again.');
         }
         console.log(JSON.stringify({ email, password, name }));
     }
@@ -67,9 +77,11 @@ const SignupForm=(props) => {
         <div style={style}>
             <div style={RegistBox}>
                 <h1 style={{ marginBottom: '20px', color: '#333' }}>Register</h1>
-                <TextField id="outlined-basic" label="name" variant="outlined" onChange={(e)=>setName(e.target.value)} /><br />
-                <TextField id="outlined-basic" label="email" variant="outlined" onChange={(e)=>setEmail(e.target.value)} /><br />
-                <TextField id="outlined-basic" label="password" variant="outlined" type="password" onChange={(e)=>setPassword(e.target.value)} /><br />
+                {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+                <TextField id="name-field" label="name" variant="outlined" onChange={(e)=>setName(e.target.value)} /><br />
+                <TextField id="email-field" label="email" variant="outlined" onChange={(e)=>setEmail(e.target.value)} /><br />
+                <TextField id="password-field" label="password" variant="outlined" type="password" onChange={(e)=>setPassword(e.target.value)} /><br />
+                <TextField id="confirm-password-field" label="confirm Password" variant="outlined" type="password" onChange={(e)=>setConfirmPassword(e.target.value)} /><br />
                 <Button variant="outlined" onClick={register}>Register</Button> 
             </div>
         </div>
