@@ -65,14 +65,32 @@ const SigninForm=(props) => {
         console.log(JSON.stringify({ email, password }));
     }
     
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            login();
+        }
+    };
 
     return(
         <div style={style}>
             <div style={loginBox}>
                 <h1 style={{ marginBottom: '20px', color: '#333' }}>Login</h1>
                 {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-                <TextField id="outlined-basic" label="email" variant="outlined" onChange={(e)=>setEmail(e.target.value)} /><br />
-                <TextField id="outlined-basic" label="password" variant="outlined" type="password" onChange={(e)=>setPassword(e.target.value)}/><br />
+                <TextField 
+                    id="email-field" 
+                    label="email" 
+                    variant="outlined" 
+                    onChange={(e)=>setEmail(e.target.value)} 
+                    onKeyDown={handleKeyDown}
+                /><br />
+                <TextField 
+                    id="password-field" 
+                    label="password" 
+                    variant="outlined" 
+                    type="password" 
+                    onChange={(e)=>setPassword(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                /><br />
                 <Button variant="outlined" onClick={login} >submit</Button> 
             </div>
         </div>

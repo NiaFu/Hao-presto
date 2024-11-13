@@ -73,15 +73,47 @@ const SignupForm=(props) => {
         console.log(JSON.stringify({ email, password, name }));
     }
 
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            register();
+        }
+    };
+
     return(
         <div style={style}>
             <div style={RegistBox}>
                 <h1 style={{ marginBottom: '20px', color: '#333' }}>Register</h1>
                 {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-                <TextField id="name-field" label="name" variant="outlined" onChange={(e)=>setName(e.target.value)} /><br />
-                <TextField id="email-field" label="email" variant="outlined" onChange={(e)=>setEmail(e.target.value)} /><br />
-                <TextField id="password-field" label="password" variant="outlined" type="password" onChange={(e)=>setPassword(e.target.value)} /><br />
-                <TextField id="confirm-password-field" label="confirm Password" variant="outlined" type="password" onChange={(e)=>setConfirmPassword(e.target.value)} /><br />
+                <TextField 
+                    id="name-field" 
+                    label="name" 
+                    variant="outlined" 
+                    onChange={(e)=>setName(e.target.value)} 
+                    onKeyDown={handleKeyDown}
+                /><br />
+                <TextField 
+                    id="email-field" 
+                    label="email" 
+                    variant="outlined" 
+                    onChange={(e)=>setEmail(e.target.value)} 
+                    onKeyDown={handleKeyDown}
+                /><br />
+                <TextField 
+                    id="password-field" 
+                    label="password" 
+                    variant="outlined" 
+                    type="password" 
+                    onChange={(e)=>setPassword(e.target.value)} 
+                    onKeyDown={handleKeyDown}
+                /><br />
+                <TextField 
+                    id="confirm-password-field" 
+                    label="confirm Password" 
+                    variant="outlined" 
+                    type="password" 
+                    onChange={(e)=>setConfirmPassword(e.target.value)} 
+                    onKeyDown={handleKeyDown}
+                /><br />
                 <Button variant="outlined" onClick={register}>Register</Button> 
             </div>
         </div>
