@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import { BrowserRouter, Routes, Route } from 'react-router-dom'; 
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom'; 
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
@@ -29,6 +29,7 @@ const loginBox = {
 const SigninForm=() => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
     // console.log(email);
 
     const login = async() => {
@@ -43,13 +44,20 @@ const SigninForm=() => {
                 password
             }),
         })
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
         const data = await response.json()
         if(data.token) {
             localStorage.setItem('token', data.token)
+            navigate('/dashboard')
         }else {
             console.log('error')
-            //window.alert
+            window.alert('error!') //window.alert
         }
+        console.log(JSON.stringify({ email, password }));
     }
     
 
