@@ -26,7 +26,7 @@ const loginBox = {
     justifyContent: 'center'
 
 }
-const SigninForm=() => {
+const SigninForm=(props) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
@@ -52,6 +52,7 @@ const SigninForm=() => {
         const data = await response.json()
         if(data.token) {
             localStorage.setItem('token', data.token)
+            props.setToken(data.token)
             navigate('/dashboard')
         }else {
             console.log('error')

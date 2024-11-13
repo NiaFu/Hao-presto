@@ -27,7 +27,7 @@ const RegistBox = {
 
 }
 
-const SignupForm=() => {
+const SignupForm=(props) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -54,6 +54,7 @@ const SignupForm=() => {
         const data = await response.json()
         if(data.token) {
             localStorage.setItem('token', data.token)
+            props.setToken(data.token)
             navigate('/dashboard')
         }else {
             console.log('error')
