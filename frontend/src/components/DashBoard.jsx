@@ -18,6 +18,7 @@ const style = {
     // height: '100vh',
     backgroundColor: '#f5f5f5'
 };
+
 const headerStyle = {
     display: 'flex',
     justifyContent: 'space-between',
@@ -25,6 +26,58 @@ const headerStyle = {
     width: '80%',
     marginTop: '20px'
 };
+
+const gridStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(500px, 1fr))',
+    gap: '20px',
+    width: '80%',
+    marginTop: '20px',
+};
+
+const cardStyle = {
+    position: 'relative',
+    padding: '10px',
+    width: '100%',
+    aspectRatio: '2 / 1', 
+    backgroundColor: '#f5f5f5',
+    borderRadius: '8px',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start', 
+    // justifyContent: 'center',
+    alignItems: 'center',
+    textAlign: 'center',
+    padding: '10px'
+};
+
+const thumbnailStyle = {
+    width: '20%',
+    height: 'auto', 
+    paddingBottom: '20%', // 保持1:1比例的方形缩略图
+    backgroundColor: '#ccc',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: '10px',
+};
+
+// placeholderStyle
+const placeholderStyle = {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#ccc',
+};
+
+const textStyle = {
+    // overflow: 'hidden',
+    textOverflow: 'ellipsis', 
+    whiteSpace: 'nowrap',
+    width: '80%'
+};
+
 
 const DashBoard = () => {
     const [open, setOpen] = useState(false);
@@ -75,10 +128,11 @@ const DashBoard = () => {
     };
 
     const handleCreatePresentation = () => {
+        const thumbnailURL = thumbnail ? URL.createObjectURL(thumbnail) : null;
         const newPresentation = {
             name,
             description,
-            thumbnail: thumbnail ? URL.createObjectURL(thumbnail) : null,
+            thumbnail: thumbnailURL,
             slides: [{ content: "Title Text" }]
         };
 
@@ -107,18 +161,23 @@ const DashBoard = () => {
                     
                     
                     {/* 显示演示文稿列表 */}
-                    <div style={{ marginTop: '20px', width: '80%' }}>
-                        <h2>Presentations:</h2>
+                    <div style={gridStyle}>
                         {presentations.map((presentation, index) => (
                             <div 
                                 key={index} 
-                                style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px', cursor: 'pointer' }}
+                                style={cardStyle}
                                 onClick={() => handleOpenPresentation(index)}
                             >
-                                <h3>{presentation.name}</h3>
-                                <p>{presentation.description}</p>
-                                {presentation.thumbnail && <img src={presentation.thumbnail} alt="Thumbnail" style={{ width: '100px', height: 'auto' }} />}
-                                <p>Slides: {presentation.slides.length}</p>
+                                <div style={thumbnailStyle}>
+                                    {presentation.thumbnail ? (
+                                        <img src={presentation.thumbnail} alt="Thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    ) : (
+                                        <div style={placeholderStyle} /> 
+                                    )}
+                                </div>
+                                <h3 style={{ margin: '1px 0', ...textStyle }}>{presentation.name}</h3>
+                                {presentation.description && <p style={{ fontSize: '0.9rem', color: '#666', ...textStyle }}>{presentation.description}</p>}
+                                <p style={{ fontSize: '0.8rem', color: '#999' }}>Slides: {presentation.slides.length}</p>
                             </div>
                         ))}
                     </div>
