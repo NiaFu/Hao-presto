@@ -30,6 +30,56 @@ const DashBoard = (props) => {
         setOpen(true);
     };
 
+    const handleClose = () => {
+        setOpen(false);
+        setName('');
+        setDescription('');
+        setThumbnail(null);
+    };
+
+    const handleThumbnailChange = (event) => {
+        const file = event.target.files[0];
+        setThumbnail(file);
+    };
+
+    const handleCreatePresentation = () => {
+        const dataToStore = {
+            store: {
+                ALL: "THE",
+                DATA: "HERE IN CAPS",
+                "CAN BE": 100000,
+                DIFFERENT: {
+                    "THINGS.": "IT CAN",
+                    LITERALLY: "BE",
+                    ANYTHING: {
+                        YOU: "WANT",
+                        IT: "TO BE",
+                        AND: {
+                            AS: "NESTED",
+                            "AS YOU": "WOULD LIKE!"
+                        }
+                    }
+                },
+                "THIS WILL BE": [
+                    "PERSONAL",
+                    "TO",
+                    "YOUR",
+                    "OWN",
+                    "WORK"
+                ],
+                name, // 用户输入的名称
+                description, // 用户输入的描述
+                thumbnail: thumbnail ? thumbnail.name : null // 缩略图文件名
+            }
+        };
+
+        // 转换为 JSON 字符串并存储在 localStorage 中
+        localStorage.setItem('presentationData', JSON.stringify(dataToStore));
+
+        console.log("Stored presentation data:", dataToStore);
+        handleClose();
+    };
+    
     return (
         <div style={style}>
             <h1>Welcome to Your DashBoard</h1>
