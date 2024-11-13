@@ -18,6 +18,13 @@ const style = {
     // height: '100vh',
     backgroundColor: '#f5f5f5'
 };
+const headerStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '80%',
+    marginTop: '20px'
+};
 
 const DashBoard = () => {
     const [open, setOpen] = useState(false);
@@ -85,17 +92,19 @@ const DashBoard = () => {
 
     return (
         <div style={style}>
-            <h1>DashBoard</h1>
             {!currentPresentation && (
                 <>
-                    <Button 
-                        variant="contained" 
-                        color="primary" 
-                        onClick={handleClickOpen} 
-                        style={{ marginTop: '20px' }}
-                    >
-                        New Presentation
-                    </Button>
+                    <div style={headerStyle}>
+                        <Button
+                            variant="contained" 
+                            color="primary" 
+                            onClick={handleClickOpen} 
+                            style={{ marginTop: '20px' }}
+                        >
+                            New Presentation
+                        </Button>
+                    </div>
+                    
                     
                     {/* 显示演示文稿列表 */}
                     <div style={{ marginTop: '20px', width: '80%' }}>
