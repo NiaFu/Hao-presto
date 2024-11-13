@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 import Dialog from '@mui/material/Dialog';
@@ -13,18 +13,43 @@ import PhotoCamera from '@mui/icons-material/PhotoCamera';
 const style = {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
+    // justifyContent: 'center',
     alignItems: 'center',
-    height: '100vh',
+    // height: '100vh',
     backgroundColor: '#f5f5f5'
 };
 
-const DashBoard = (props) => {
+const DashBoard = () => {
     const [open, setOpen] = useState(false);
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [thumbnail, setThumbnail] = useState(null);
     const navigate = useNavigate();
+    const [presentations, setPresentations] = useState([]);
+    const [currentPresentation, setCurrentPresentation] = useState(null); // currentPresentation
+    const [storeData, setStoreData] = useState({});
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+    
+        fetch('http://localhost:5005/store', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`, 
+                'Content-Type': 'application/json'
+            }
+        })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then((data) => {
+            setStoreData(data.store); 
+        })
+        .catch((error) => console.error("Error fetching store data:", error));
+    }, []);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -43,54 +68,80 @@ const DashBoard = (props) => {
     };
 
     const handleCreatePresentation = () => {
-        const dataToStore = {
-            store: {
-                ALL: "THE",
-                DATA: "HERE IN CAPS",
-                "CAN BE": 100000,
-                DIFFERENT: {
-                    "THINGS.": "IT CAN",
-                    LITERALLY: "BE",
-                    ANYTHING: {
-                        YOU: "WANT",
-                        IT: "TO BE",
-                        AND: {
-                            AS: "NESTED",
-                            "AS YOU": "WOULD LIKE!"
-                        }
-                    }
-                },
-                "THIS WILL BE": [
-                    "PERSONAL",
-                    "TO",
-                    "YOUR",
-                    "OWN",
-                    "WORK"
-                ],
-                name, // 用户输入的名称
-                description, // 用户输入的描述
-                thumbnail: thumbnail ? thumbnail.name : null // 缩略图文件名
-            }
+        const newPresentation = {
+            name,
+            description,
+            thumbnail: thumbnail ? URL.createObjectURL(thumbnail) : null,
+            slides: [{ content: "Title Text" }]
         };
 
-        // 转换为 JSON 字符串并存储在 localStorage 中
-        localStorage.setItem('presentationData', JSON.stringify(dataToStore));
-
-        console.log("Stored presentation data:", dataToStore);
+        setPresentations([...presentations, newPresentation]);
         handleClose();
     };
-    
+
+    const handleOpenPresentation = (index) => {
+        setCurrentPresentation(presentations[index]);
+    };
+
     return (
         <div style={style}>
-            <h1>Welcome to Your DashBoard</h1>
-            <Button 
-                variant="contained" 
-                color="primary" 
-                onClick={handleClickOpen} 
-                style={{ marginTop: '20px' }}
-            >
-                New Presentation
-            </Button>
+            <h1>DashBoard</h1>
+            {!currentPresentation && (
+                <>
+                    <Button 
+                        variant="contained" 
+                        color="primary" 
+                        onClick={handleClickOpen} 
+                        style={{ marginTop: '20px' }}
+                    >
+                        New Presentation
+                    </Button>
+                    
+                    {/* 显示演示文稿列表 */}
+                    <div style={{ marginTop: '20px', width: '80%' }}>
+                        <h2>Presentations:</h2>
+                        {presentations.map((presentation, index) => (
+                            <div 
+                                key={index} 
+                                style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px', cursor: 'pointer' }}
+                                onClick={() => handleOpenPresentation(index)}
+                            >
+                                <h3>{presentation.name}</h3>
+                                <p>{presentation.description}</p>
+                                {presentation.thumbnail && <img src={presentation.thumbnail} alt="Thumbnail" style={{ width: '100px', height: 'auto' }} />}
+                                <p>Slides: {presentation.slides.length}</p>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+            
+            {/* current presentation first page*/}
+            {currentPresentation && (
+                <div style={{ marginTop: '20px', width: '80%', textAlign: 'center' }}>
+                    <h2>{currentPresentation.name}</h2>
+                    <div 
+                        style={{
+                            border: '1px solid #ddd',
+                            padding: '50px',
+                            marginTop: '20px',
+                            fontSize: '2rem',
+                            fontWeight: 'bold',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            height: '200px'
+                        }}
+                    >
+                        {currentPresentation.slides[0].content}
+                    </div>
+                    <Button onClick={() => setCurrentPresentation(null)} color="primary" style={{ marginTop: '20px' }}>
+                        Back to Dashboard
+                    </Button>
+                </div>
+            )}
+
+            {/* Create Handle */}
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>Create New Presentation</DialogTitle>
                 <DialogContent>
