@@ -134,7 +134,12 @@ const DashBoard = () => {
 
             //update
             const storeData = data.store && typeof data.store === 'object' ? data.store : {};
-            const newId = Object.keys(storeData).length+1
+            
+            // find maxId for
+            const existingIds = Object.keys(storeData).map(id => parseInt(id, 10));
+            const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0;
+            const newId = maxId + 1;
+
             const thumbnailData = thumbnail ? await getBase64(thumbnail) : null;
             storeData[newId] = { "title": title, "description": description, "thumbnail": thumbnailData, "slides": [] };
 
