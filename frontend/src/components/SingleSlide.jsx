@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getStore, updateStore } from './dataService';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 
 const modalStyle = {
     position: 'fixed',
@@ -114,6 +115,24 @@ const SingleSlide = () => {
             });
     };
 
+    const handleAddSlide = () => {
+        const newSlide = { id: totalSlides + 1, content: "" }; // 定义新幻灯片内容
+        const updatedSlides = [...presentation.slides, newSlide];
+
+        // 更新状态
+        setPresentation(prev => ({ ...prev, slides: updatedSlides }));
+        setTotalSlides(updatedSlides.length);
+        setCurrentIndex(updatedSlides.length - 1); // 将当前索引设置为新幻灯片的位置
+
+        // 同步更新至后端
+        getStore()
+            .then(data => {
+                data.store[id].slides = updatedSlides;
+                return updateStore(data.store);
+            })
+            .catch(error => console.error("Error adding new slide:", error));
+    }
+
     const goToNext = () => setCurrentIndex(prev => (prev < totalSlides - 1 ? prev + 1 : prev));
     const goToPrevious = () => setCurrentIndex(prev => (prev > 0 ? prev - 1 : prev));
 
@@ -156,6 +175,15 @@ const SingleSlide = () => {
                     )}
                     <Button variant="contained" color="primary" sx={{ mb: 1 }} onClick={() => setShowThumbnailModal(true)}>
                         Change Thumbnail
+                    </Button>
+                    <br />
+                    <Button
+                        startIcon={<AddIcon />}
+                        variant="contained"
+                        color="success"
+                        onClick={handleAddSlide}
+                    >
+                        New Slide
                     </Button>
                 </CardContent>
             </Card>
