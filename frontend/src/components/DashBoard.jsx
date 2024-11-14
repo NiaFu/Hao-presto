@@ -9,7 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
-import { getStore } from './dataService';
+import { getStore, updateStore } from './dataService';
 
 
 const style = {
@@ -41,14 +41,14 @@ const cardStyle = {
     position: 'relative',
     padding: '10px',
     width: '100%',
-    aspectRatio: '2 / 1', 
+    aspectRatio: '2 / 1',
     backgroundColor: '#f5f5f5',
     borderRadius: '8px',
     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'flex-start', 
+    justifyContent: 'flex-start',
     // justifyContent: 'center',
     alignItems: 'center',
     textAlign: 'center',
@@ -57,8 +57,8 @@ const cardStyle = {
 
 const thumbnailStyle = {
     width: '20%',
-    height: 'auto', 
-    paddingBottom: '20%', 
+    height: 'auto',
+    paddingBottom: '20%',
     backgroundColor: '#ccc',
     display: 'flex',
     justifyContent: 'center',
@@ -75,7 +75,7 @@ const placeholderStyle = {
 
 const textStyle = {
     // overflow: 'hidden',
-    textOverflow: 'ellipsis', 
+    textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     width: '80%'
 };
@@ -93,7 +93,7 @@ const DashBoard = () => {
         getStore()
             .then(data => {
                 if (data && data.store) {
-                    setPresentations(Object.entries(data.store).filter(([key]) => !isNaN(key)).map(([key, value]) => ({...value, id: key})));
+                    setPresentations(Object.entries(data.store).filter(([key]) => !isNaN(key)).map(([key, value]) => ({ ...value, id: key })));
                 }
             })
             .catch(error => {
@@ -126,38 +126,25 @@ const DashBoard = () => {
             reader.onerror = (error) => reject(error);
         });
     };
-    
+
     const postnew = (title, description, thumbnail) => {
         getStore()
-        .then(async (data) => {
-            console.log(data);
+            .then(async (data) => {
+                console.log(data);
 
-            //update
-            const storeData = data.store && typeof data.store === 'object' ? data.store : {};
-            
-            // find maxId for
-            const existingIds = Object.keys(storeData).map(id => parseInt(id, 10));
-            const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0;
-            const newId = maxId + 1;
+                //update
+                const storeData = data.store && typeof data.store === 'object' ? data.store : {};
 
-            const thumbnailData = thumbnail ? await getBase64(thumbnail) : null;
-            storeData[newId] = { "title": title, "description": description, "thumbnail": thumbnailData, "slides": [] };
+                // find maxId for
+                const existingIds = Object.keys(storeData).map(id => parseInt(id, 10));
+                const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0;
+                const newId = maxId + 1;
 
-            //Put
-            const usertoken = localStorage.getItem('token');
-            return fetch('http://localhost:5005/store', {
-                method: 'PUT',
-                headers: {
-                    Authorization: `Bearer ${usertoken}`, 
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({store:storeData}),
-            })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
+                const thumbnailData = thumbnail ? await getBase64(thumbnail) : null;
+                storeData[newId] = { "title": title, "description": description, "thumbnail": thumbnailData, "slides": [] };
+
+                //Put
+                return updateStore(storeData);
             })
             .then((updatedData) => {
                 if (updatedData && updatedData.store) {
@@ -170,9 +157,8 @@ const DashBoard = () => {
                 handleClose();
             });
 
-        })
     };
-    
+
     const handleOpenPresentation = (id) => {
         console.log("Open presentation id: " + id);
         navigate(`/edit/${id}`);
@@ -183,21 +169,21 @@ const DashBoard = () => {
             <>
                 <div style={headerStyle}>
                     <Button
-                        variant="contained" 
-                        color="primary" 
-                        onClick={handleClickOpen} 
+                        variant="contained"
+                        color="primary"
+                        onClick={handleClickOpen}
                         style={{ marginTop: '20px' }}
                     >
                         New Presentation
                     </Button>
                 </div>
-                    
-                    
+
+
                 {/* pre list */}
                 <div style={gridStyle}>
                     {Array.isArray(presentations) && presentations.map((presentation) => (
-                        <div 
-                            key={presentation.id} 
+                        <div
+                            key={presentation.id}
                             style={cardStyle}
                             onClick={() => handleOpenPresentation(presentation.id)}
                         >
@@ -205,7 +191,7 @@ const DashBoard = () => {
                                 {presentation.thumbnail ? (
                                     <img src={presentation.thumbnail} alt="Thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 ) : (
-                                    <div style={placeholderStyle} /> 
+                                    <div style={placeholderStyle} />
                                 )}
                             </div>
                             <h3 style={{ margin: '1px 0', ...textStyle }}>{presentation.title}</h3>
@@ -262,7 +248,7 @@ const DashBoard = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">Cancel</Button>
-                    <Button onClick={()=>postnew(name, description, thumbnail)} color="primary" variant="contained">Create</Button>
+                    <Button onClick={() => postnew(name, description, thumbnail)} color="primary" variant="contained">Create</Button>
                 </DialogActions>
             </Dialog>
         </div>
