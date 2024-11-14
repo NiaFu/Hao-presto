@@ -7,6 +7,7 @@ import SigninForm from './components/SigninForm';
 import SignupForm from './components/SignupForm';
 import LogOut from './components/LogOut';
 import DashBoard from './components/DashBoard';
+import SingleSlide from './components/SingleSlide';
 
 const welcomeStyle = {
   display: 'flex',
@@ -32,6 +33,7 @@ function App() {
       <Route path="/login" element={<SigninForm setToken = {setToken} />}></Route> 
       <Route path="/register" element={<SignupForm setToken = {setToken}/>}></Route>
       <Route path="/dashboard" element={<DashBoard/>}></Route>
+      <Route path="/edit/:id" element={<SingleSlide/>}></Route>
     </Routes>
 
     </BrowserRouter>
