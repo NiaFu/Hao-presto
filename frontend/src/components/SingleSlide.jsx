@@ -116,15 +116,15 @@ const SingleSlide = () => {
     };
 
     const handleAddSlide = () => {
-        const newSlide = { id: totalSlides + 1, content: "" }; // 定义新幻灯片内容
+        const newSlide = { id: totalSlides + 1, content: "" }; // 
         const updatedSlides = [...presentation.slides, newSlide];
 
-        // 更新状态
+        // update the slide
         setPresentation(prev => ({ ...prev, slides: updatedSlides }));
         setTotalSlides(updatedSlides.length);
-        setCurrentIndex(updatedSlides.length - 1); // 将当前索引设置为新幻灯片的位置
+        setCurrentIndex(updatedSlides.length - 1); // update index
 
-        // 同步更新至后端
+        // fetch
         getStore()
             .then(data => {
                 data.store[id].slides = updatedSlides;
