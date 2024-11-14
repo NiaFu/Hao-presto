@@ -9,6 +9,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import { getStore } from './dataGet';
+
 
 const style = {
     display: 'flex',
@@ -56,7 +58,7 @@ const cardStyle = {
 const thumbnailStyle = {
     width: '20%',
     height: 'auto', 
-    paddingBottom: '20%', // 保持1:1比例的方形缩略图
+    paddingBottom: '20%', 
     backgroundColor: '#ccc',
     display: 'flex',
     justifyContent: 'center',
@@ -84,31 +86,41 @@ const DashBoard = () => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [thumbnail, setThumbnail] = useState(null);
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const [presentations, setPresentations] = useState([]);
     const [currentPresentation, setCurrentPresentation] = useState(null); // currentPresentation
-    const [storeData, setStoreData] = useState({});
+    // const [storeData, setStoreData] = useState({});
 
+    //     const fetchData = async () => {
+    //         const token = localStorage.getItem('token');
+    //         try {
+    //             const response = await fetch('http://localhost:5005/store', {
+    //                 method: 'GET',
+    //                 headers: {
+    //                     'Authorization': `Bearer ${token}`,
+    //                     'Content-Type': 'application/json'
+    //                 }
+    //             });
+    //             if (!response.ok) throw new Error(`Error: ${response.status}`);
+    //             const data = await response.json();
+    //             setPresentations(Object.entries(data.store).filter(([key]) => !isNaN(key)).map(([_, value]) => value));
+    //         } catch (error) {
+    //             console.error("Error fetching presentations:", error);
+    //         }
+    //     };
+    //     fetchData();
+    // }, []);
     useEffect(() => {
-        const token = localStorage.getItem('token');
-    
-        fetch('http://localhost:5005/store', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`, 
-                'Content-Type': 'application/json'
-            }
-        })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then((data) => {
-            setStoreData(data.store); 
-        })
-        .catch((error) => console.error("Error fetching store data:", error));
+        getStore()
+            .then(data => {
+                if (data && data.store) {
+                    setPresentations(Object.entries(data.store).filter(([key]) => !isNaN(key)).map(([_, value]) => value));
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching presentations:", error);
+                alert("Failed to fetch presentations. Please check console for details.");
+            });
     }, []);
 
     const handleClickOpen = () => {
@@ -126,19 +138,56 @@ const DashBoard = () => {
         const file = event.target.files[0];
         setThumbnail(file);
     };
-
-    const handleCreatePresentation = () => {
-        const thumbnailURL = thumbnail ? URL.createObjectURL(thumbnail) : null;
-        const newPresentation = {
-            name,
-            description,
-            thumbnail: thumbnailURL,
-            slides: [{ content: "Title Text" }]
-        };
-
-        setPresentations([...presentations, newPresentation]);
-        handleClose();
+    // transfore base64
+    const getBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
     };
+    
+    const postnew = (title) => {
+        getStore()
+        .then((data) => {
+            console.log(data);
+
+            //update
+            const storeData = data.store && typeof data.store === 'object' ? data.store : {};
+            const newId = Object.keys(storeData).length+1
+            storeData[newId] = {"title":title,"slides":[]}
+
+            //Put
+            const usertoken = localStorage.getItem('token');
+            return fetch('http://localhost:5005/store', {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${usertoken}`, 
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({store:storeData}),
+            })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((updatedData) => {
+                if (updatedData && updatedData.store) {
+                    setPresentations(Object.values(updatedData.store));
+                } else {
+                    console.warn("Unexpected response format: 'store' field missing.");
+                }
+
+                // close handlers
+                handleClose();
+            });
+
+        })
+    };
+    
 
     const handleOpenPresentation = (index) => {
         setCurrentPresentation(presentations[index]);
@@ -160,9 +209,9 @@ const DashBoard = () => {
                     </div>
                     
                     
-                    {/* 显示演示文稿列表 */}
+                    {/* pre list */}
                     <div style={gridStyle}>
-                        {presentations.map((presentation, index) => (
+                        {Array.isArray(presentations) && presentations.map((presentation, index) => (
                             <div 
                                 key={index} 
                                 style={cardStyle}
@@ -177,7 +226,9 @@ const DashBoard = () => {
                                 </div>
                                 <h3 style={{ margin: '1px 0', ...textStyle }}>{presentation.name}</h3>
                                 {presentation.description && <p style={{ fontSize: '0.9rem', color: '#666', ...textStyle }}>{presentation.description}</p>}
-                                <p style={{ fontSize: '0.8rem', color: '#999' }}>Slides: {presentation.slides.length}</p>
+                                <p style={{ fontSize: '0.8rem', color: '#999' }}>
+                                    Slides: {presentation.slides ? presentation.slides.length : 0}
+                                </p>
                             </div>
                         ))}
                     </div>
@@ -252,12 +303,8 @@ const DashBoard = () => {
                     {thumbnail && <p>Selected file: {thumbnail.name}</p>}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={handleCreatePresentation} color="primary" variant="contained">
-                        Create
-                    </Button>
+                    <Button onClick={handleClose} color="primary">Cancel</Button>
+                    <Button onClick={()=>postnew(name)} color="primary" variant="contained">Create</Button>
                 </DialogActions>
             </Dialog>
         </div>
