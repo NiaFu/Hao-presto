@@ -89,7 +89,28 @@ const DashBoard = () => {
     // const navigate = useNavigate();
     const [presentations, setPresentations] = useState([]);
     const [currentPresentation, setCurrentPresentation] = useState(null); // currentPresentation
-    
+    // const [storeData, setStoreData] = useState({});
+
+    //     const fetchData = async () => {
+    //         const token = localStorage.getItem('token');
+    //         try {
+    //             const response = await fetch('http://localhost:5005/store', {
+    //                 method: 'GET',
+    //                 headers: {
+    //                     'Authorization': `Bearer ${token}`,
+    //                     'Content-Type': 'application/json'
+    //                 }
+    //             });
+    //             if (!response.ok) throw new Error(`Error: ${response.status}`);
+    //             const data = await response.json();
+    //             setPresentations(Object.entries(data.store).filter(([key]) => !isNaN(key)).map(([_, value]) => value));
+    //         } catch (error) {
+    //             console.error("Error fetching presentations:", error);
+    //         }
+    //     };
+    //     fetchData();
+    // }, []);
+
     useEffect(() => {
         getStore()
             .then(data => {
@@ -128,15 +149,16 @@ const DashBoard = () => {
         });
     };
     
-    const postnew = (title) => {
+    const postnew = (title, description, thumbnail) => {
         getStore()
-        .then((data) => {
+        .then(async (data) => {
             console.log(data);
 
             //update
             const storeData = data.store && typeof data.store === 'object' ? data.store : {};
             const newId = Object.keys(storeData).length+1
-            storeData[newId] = {"title":title,"slides":[]}
+            const thumbnailData = thumbnail ? await getBase64(thumbnail) : null;
+            storeData[newId] = { "title": title, "description": description, "thumbnail": thumbnailData, "slides": [] };
 
             //Put
             const usertoken = localStorage.getItem('token');
@@ -204,7 +226,7 @@ const DashBoard = () => {
                                         <div style={placeholderStyle} /> 
                                     )}
                                 </div>
-                                <h3 style={{ margin: '1px 0', ...textStyle }}>{presentation.name}</h3>
+                                <h3 style={{ margin: '1px 0', ...textStyle }}>{presentation.title}</h3>
                                 {presentation.description && <p style={{ fontSize: '0.9rem', color: '#666', ...textStyle }}>{presentation.description}</p>}
                                 <p style={{ fontSize: '0.8rem', color: '#999' }}>
                                     Slides: {presentation.slides ? presentation.slides.length : 0}
@@ -284,7 +306,7 @@ const DashBoard = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose} color="primary">Cancel</Button>
-                    <Button onClick={()=>postnew(name)} color="primary" variant="contained">Create</Button>
+                    <Button onClick={()=>postnew(name, description, thumbnail)} color="primary" variant="contained">Create</Button>
                 </DialogActions>
             </Dialog>
         </div>
