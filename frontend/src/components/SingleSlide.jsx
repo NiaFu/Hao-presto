@@ -69,6 +69,7 @@ const SingleSlide = () => {
     const [text, setText] = useState('');
     const [fontSize, setFontSize] = useState('');
     const [color, setColor] = useState('');
+    const [editingBoxId, setEditingBoxId] = useState(null);
 
     useEffect(() => {
         getPresentation();
@@ -185,6 +186,15 @@ const SingleSlide = () => {
     const goToNext = () => setCurrentIndex(prev => (prev < totalSlides - 1 ? prev + 1 : prev));
     const goToPrevious = () => setCurrentIndex(prev => (prev > 0 ? prev - 1 : prev));
 
+    const handleDoubleClick = (id, box) => {
+        setEditingBoxId(id);
+        setSize(box.size);
+        setText(box.text);
+        setFontSize(box.fontSize);
+        setColor(box.color);
+        handleOpen();
+    };
+
     const addTextBox = () => {
         // new Id
         const ElementId = `box_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
@@ -197,14 +207,20 @@ const SingleSlide = () => {
         }
         const updatedSlides = presentation.slides.map((slide, index) => {
             if (index === currentIndex) {
-                const content = slide.content || {}; 
-                return { ...slide, content: { ...content, [ElementId]: textBox } };
+                const content = slide.content || {};
+                return {
+                    ...slide,
+                    content: editingBoxId
+                        ? { ...content, [editingBoxId]: textBox }  // 编辑现有文本框
+                        : { ...content, [`box_${Date.now()}_${Math.floor(Math.random() * 1000)}`]: textBox }  // 新增文本框
+                };
             }
             return slide;
         });
 
         // reset
         setPresentation(prev => ({ ...prev, slides: updatedSlides }));
+        setEditingBoxId(null);
 
         // fetch
         getStore()
@@ -217,7 +233,7 @@ const SingleSlide = () => {
                 setText('');
                 setFontSize('');
                 setColor('');
-                handleClose(); 
+                handleClose();
             })
             .catch(error => console.error("Error adding text box:", error));
     };
@@ -297,6 +313,46 @@ const SingleSlide = () => {
                     </IconButton>
                     {/* index */}
                     <Box sx={slideNumberStyle}>{currentIndex + 1}</Box> {/* slide number */}
+
+                    {/* display TextBox */}
+                    {presentation.slides && presentation.slides[currentIndex] ? (
+                        <>
+                            {/* delete slide button */}
+                            <IconButton
+                                onClick={handleDeleteSlide}
+                                color="error"
+                                sx={{ position: 'absolute', top: '10px', right: '10px' }}
+                            >
+                                <DeleteOutlineIcon />
+                            </IconButton>
+
+                            {/* 显示文本框 */}
+                            {presentation.slides[currentIndex].content &&
+                                Object.entries(presentation.slides[currentIndex].content).map(([key, box]) => (
+                                    <Box
+                                        key={key}
+                                        sx={{
+                                            position: 'relative',
+                                            textAlign: 'left',
+                                            overflow: 'hidden',
+                                            whiteSpace: 'nowrap',
+                                            textOverflow: 'ellipsis',
+                                            fontSize: `${box.fontSize}em`,
+                                            color: box.color,
+                                            width: `${box.size}%`,
+                                            border: '1px solid #ccc',
+                                            padding: '4px',
+                                            marginBottom: '4px'
+                                        }}
+                                        onDoubleClick={() => handleDoubleClick(key, box)}
+                                    >
+                                        {box.text}
+                                    </Box>
+                                ))}
+                        </>
+                    ) : (
+                        <Typography variant="body1" color="textSecondary">No slide content available.</Typography>
+                    )}
                 </Box>
                 <IconButton onClick={goToNext} disabled={currentIndex === totalSlides - 1} size="large" color="primary">
                     <ArrowForwardIosIcon />
@@ -354,10 +410,10 @@ const SingleSlide = () => {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={createTextStyle}>
-                    size; <input type='text' onChange={(e) => setSize(e.target.value)} value={size} />
-                    text: <input type='text' onChange={(e) => setText(e.target.value)} value={text} />
-                    font size: <input type='text' onChange={(e) => setFontSize(e.target.value)} value={fontSize} />
-                    color: <input type='text' onChange={(e) => setColor(e.target.value)} value={color} />
+                    size (%): <input type='text' onChange={(e) => setSize(e.target.value)} value={size} /> <br />
+                    text: <input type='text' onChange={(e) => setText(e.target.value)} value={text} /> <br />
+                    font size (em): <input type='text' onChange={(e) => setFontSize(e.target.value)} value={fontSize} /> <br />
+                    color (HEX): <input type='text' onChange={(e) => setColor(e.target.value)} value={color} /> <br />
                     <Button variant="contained" onClick={addTextBox} >add</Button>
                 </Box>
             </Modal>
