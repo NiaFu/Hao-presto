@@ -6,6 +6,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getStore, updateStore } from './dataService';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const modalStyle = {
     position: 'fixed',
@@ -49,6 +50,21 @@ const SingleSlide = () => {
 
     useEffect(() => {
         getPresentation();
+
+        // listener
+        const handleKeyDown = (event) => {
+            if (event.key === 'ArrowRight') {
+                goToNext();
+            } else if (event.key === 'ArrowLeft') {
+                goToPrevious();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
     }, [id]);
 
     const getPresentation = () => {
@@ -62,6 +78,20 @@ const SingleSlide = () => {
                 setTotalSlides(slides.length);
                 setCurrentIndex(0);
             });
+    };
+
+    // delete the presentation
+    const deletePresentation = () => {
+        const confirmHandler = window.confirm('Are you sure you want to delete this presentation?');
+        if (confirmHandler) {
+            getStore()
+                .then(data => {
+                    delete data.store[id];
+                    return updateStore(data.store);
+                })
+                .then(() => navigate('/dashboard'))
+                .catch(error => console.error("Error deleting presentation:", error));
+        }
     };
 
     const saveTitle = () => {
@@ -97,6 +127,14 @@ const SingleSlide = () => {
                 onClick={() => navigate('/dashboard')}
             >
                 Back
+            </Button>
+            <Button
+                startIcon={<DeleteIcon />}
+                variant="outlined"
+                color="secondary"
+                onClick={deletePresentation}
+            >
+                Delete Presentation
             </Button>
 
             <Card sx={{ width: '80%', maxWidth: 600, mb: 4, p: 2, borderRadius: 3, boxShadow: 3 }}>
@@ -135,10 +173,7 @@ const SingleSlide = () => {
                     width="100%"
                     sx={{ bgcolor: 'white', borderRadius: 2, boxShadow: 3, p: 2 }}
                 >
-                    <Typography variant="h6" color="text.secondary">
-                        Slide {currentIndex + 1} of {totalSlides}
-                    </Typography>
-                    <Box sx={slideNumberStyle}>{currentIndex + 1}</Box> {/* 幻灯片编号 */}
+                    <Box sx={slideNumberStyle}>{currentIndex + 1}</Box> {/* slide number */}
                 </Box>
                 <IconButton onClick={goToNext} disabled={currentIndex === totalSlides - 1} size="large" color="primary">
                     <ArrowForwardIosIcon />
