@@ -8,6 +8,7 @@ import { getStore, updateStore } from './dataService';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 const modalStyle = {
     position: 'fixed',
@@ -116,7 +117,12 @@ const SingleSlide = () => {
     };
 
     const handleAddSlide = () => {
-        const newSlide = { id: totalSlides + 1, content: "" }; // 
+        // set slides id
+        const maxId = presentation.slides.length > 0
+            ? Math.max(...presentation.slides.map(slide => slide.id))
+            : 0;
+        const newSlide = { id: maxId + 1, content: "" };
+
         const updatedSlides = [...presentation.slides, newSlide];
 
         // update the slide
@@ -132,6 +138,29 @@ const SingleSlide = () => {
             })
             .catch(error => console.error("Error adding new slide:", error));
     }
+
+    // delete slide
+    const handleDeleteSlide = () => {
+        if (presentation.slides.length === 1) {
+            alert("Cannot delete the only slide. Please delete the entire presentation.");
+            return;
+        }
+
+        const updatedSlides = presentation.slides.filter((_, index) => index !== currentIndex);
+        const newIndex = currentIndex === 0 ? 0 : currentIndex - 1;
+
+        setPresentation(prev => ({ ...prev, slides: updatedSlides }));
+        setTotalSlides(updatedSlides.length);
+        setCurrentIndex(newIndex);
+
+        // fetch
+        getStore()
+            .then(data => {
+                data.store[id].slides = updatedSlides;
+                return updateStore(data.store);
+            })
+            .catch(error => console.error("Error deleting slide:", error));
+    };
 
     const goToNext = () => setCurrentIndex(prev => (prev < totalSlides - 1 ? prev + 1 : prev));
     const goToPrevious = () => setCurrentIndex(prev => (prev > 0 ? prev - 1 : prev));
@@ -201,6 +230,15 @@ const SingleSlide = () => {
                     width="100%"
                     sx={{ bgcolor: 'white', borderRadius: 2, boxShadow: 3, p: 2 }}
                 >
+                    {/* delete slide */}
+                    <IconButton
+                        onClick={handleDeleteSlide}
+                        color="error"
+                        sx={{ position: 'absolute', top: '10px', right: '10px' }}
+                    >
+                        <DeleteOutlineIcon />
+                    </IconButton>
+                    {/* index */}
                     <Box sx={slideNumberStyle}>{currentIndex + 1}</Box> {/* slide number */}
                 </Box>
                 <IconButton onClick={goToNext} disabled={currentIndex === totalSlides - 1} size="large" color="primary">
