@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
-import { useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -86,36 +86,14 @@ const DashBoard = () => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [thumbnail, setThumbnail] = useState(null);
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const [presentations, setPresentations] = useState([]);
-    const [currentPresentation, setCurrentPresentation] = useState(null); // currentPresentation
-    // const [storeData, setStoreData] = useState({});
-
-    //     const fetchData = async () => {
-    //         const token = localStorage.getItem('token');
-    //         try {
-    //             const response = await fetch('http://localhost:5005/store', {
-    //                 method: 'GET',
-    //                 headers: {
-    //                     'Authorization': `Bearer ${token}`,
-    //                     'Content-Type': 'application/json'
-    //                 }
-    //             });
-    //             if (!response.ok) throw new Error(`Error: ${response.status}`);
-    //             const data = await response.json();
-    //             setPresentations(Object.entries(data.store).filter(([key]) => !isNaN(key)).map(([_, value]) => value));
-    //         } catch (error) {
-    //             console.error("Error fetching presentations:", error);
-    //         }
-    //     };
-    //     fetchData();
-    // }, []);
 
     useEffect(() => {
         getStore()
             .then(data => {
                 if (data && data.store) {
-                    setPresentations(Object.entries(data.store).filter(([key]) => !isNaN(key)).map(([_, value]) => value));
+                    setPresentations(Object.entries(data.store).filter(([key]) => !isNaN(key)).map(([key, value]) => ({...value, id: key})));
                 }
             })
             .catch(error => {
@@ -190,54 +168,52 @@ const DashBoard = () => {
         })
     };
     
-
-    const handleOpenPresentation = (index) => {
-        setCurrentPresentation(presentations[index]);
+    const handleOpenPresentation = (id) => {
+        console.log("Open presentation id: " + id);
+        navigate(`/edit/${id}`);
     };
 
     return (
         <div style={style}>
-            {!currentPresentation && (
-                <>
-                    <div style={headerStyle}>
-                        <Button
-                            variant="contained" 
-                            color="primary" 
-                            onClick={handleClickOpen} 
-                            style={{ marginTop: '20px' }}
+            <>
+                <div style={headerStyle}>
+                    <Button
+                        variant="contained" 
+                        color="primary" 
+                        onClick={handleClickOpen} 
+                        style={{ marginTop: '20px' }}
+                    >
+                        New Presentation
+                    </Button>
+                </div>
+                    
+                    
+                {/* pre list */}
+                <div style={gridStyle}>
+                    {Array.isArray(presentations) && presentations.map((presentation) => (
+                        <div 
+                            key={presentation.newId} 
+                            style={cardStyle}
+                            onClick={() => handleOpenPresentation(presentation.Id)}
                         >
-                            New Presentation
-                        </Button>
-                    </div>
-                    
-                    
-                    {/* pre list */}
-                    <div style={gridStyle}>
-                        {Array.isArray(presentations) && presentations.map((presentation, index) => (
-                            <div 
-                                key={index} 
-                                style={cardStyle}
-                                onClick={() => handleOpenPresentation(index)}
-                            >
-                                <div style={thumbnailStyle}>
-                                    {presentation.thumbnail ? (
-                                        <img src={presentation.thumbnail} alt="Thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                    ) : (
-                                        <div style={placeholderStyle} /> 
-                                    )}
-                                </div>
-                                <h3 style={{ margin: '1px 0', ...textStyle }}>{presentation.title}</h3>
-                                {presentation.description && <p style={{ fontSize: '0.9rem', color: '#666', ...textStyle }}>{presentation.description}</p>}
-                                <p style={{ fontSize: '0.8rem', color: '#999' }}>
-                                    Slides: {presentation.slides ? presentation.slides.length : 0}
-                                </p>
+                            <div style={thumbnailStyle}>
+                                {presentation.thumbnail ? (
+                                    <img src={presentation.thumbnail} alt="Thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                    <div style={placeholderStyle} /> 
+                                )}
                             </div>
-                        ))}
-                    </div>
-                </>
-            )}
+                            <h3 style={{ margin: '1px 0', ...textStyle }}>{presentation.title}</h3>
+                            {presentation.description && <p style={{ fontSize: '0.9rem', color: '#666', ...textStyle }}>{presentation.description}</p>}
+                            <p style={{ fontSize: '0.8rem', color: '#999' }}>
+                                Slides: {presentation.slides ? presentation.slides.length : 0}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </>
             
-            {/* current presentation first page*/}
+            {/* current presentation first page
             {currentPresentation && (
                 <div style={{ marginTop: '20px', width: '80%', textAlign: 'center' }}>
                     <h2>{currentPresentation.name}</h2>
@@ -260,7 +236,7 @@ const DashBoard = () => {
                         Back to Dashboard
                     </Button>
                 </div>
-            )}
+            )} */}
 
             {/* Create Handle */}
             <Dialog open={open} onClose={handleClose}>
