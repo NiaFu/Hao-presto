@@ -9,7 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
-import { getStore } from './dataGet';
+import { getStore } from './dataService';
 
 
 const style = {
