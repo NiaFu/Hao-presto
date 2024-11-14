@@ -38,6 +38,18 @@ const slideNumberStyle = {
     borderRadius: '4px'
 };
 
+const createTextStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+};
+
 const SingleSlide = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -49,6 +61,14 @@ const SingleSlide = () => {
     const [thumbnailPreview, setThumbnailPreview] = useState(null);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [totalSlides, setTotalSlides] = useState(0);
+
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+    const [size, setSize] = useState('');
+    const [text, setText] = useState('');
+    const [fontSize, setFontSize] = useState('');
+    const [color, setColor] = useState('');
 
     useEffect(() => {
         getPresentation();
@@ -137,7 +157,7 @@ const SingleSlide = () => {
                 return updateStore(data.store);
             })
             .catch(error => console.error("Error adding new slide:", error));
-    }
+    };
 
     // delete slide
     const handleDeleteSlide = () => {
@@ -164,6 +184,43 @@ const SingleSlide = () => {
 
     const goToNext = () => setCurrentIndex(prev => (prev < totalSlides - 1 ? prev + 1 : prev));
     const goToPrevious = () => setCurrentIndex(prev => (prev > 0 ? prev - 1 : prev));
+
+    const addTextBox = () => {
+        // new Id
+        const ElementId = `box_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+        const textBox = {
+            size: size,
+            text: text,
+            fontSize: fontSize,
+            color: color,
+            position: { x: 0, y: 0 }
+        }
+        const updatedSlides = presentation.slides.map((slide, index) => {
+            if (index === currentIndex) {
+                const content = slide.content || {}; 
+                return { ...slide, content: { ...content, [ElementId]: textBox } };
+            }
+            return slide;
+        });
+
+        // reset
+        setPresentation(prev => ({ ...prev, slides: updatedSlides }));
+
+        // fetch
+        getStore()
+            .then(data => {
+                data.store[id].slides = updatedSlides;
+                return updateStore(data.store);
+            })
+            .then(() => {
+                setSize('');
+                setText('');
+                setFontSize('');
+                setColor('');
+                handleClose(); 
+            })
+            .catch(error => console.error("Error adding text box:", error));
+    };
 
     return (
         <Box display="flex" flexDirection="column" alignItems="center" sx={{ bgcolor: '#f0f2f5', minHeight: '100vh', p: 4 }}>
@@ -288,7 +345,25 @@ const SingleSlide = () => {
                     <Button onClick={saveThumbnail} variant="contained" sx={{ mt: 2 }}>Save</Button>
                 </Box>
             </Modal>
+
+            <Button onClick={handleOpen}>Create Text</Button>
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={createTextStyle}>
+                    size; <input type='text' onChange={(e) => setSize(e.target.value)} value={size} />
+                    text: <input type='text' onChange={(e) => setText(e.target.value)} value={text} />
+                    font size: <input type='text' onChange={(e) => setFontSize(e.target.value)} value={fontSize} />
+                    color: <input type='text' onChange={(e) => setColor(e.target.value)} value={color} />
+                    <Button variant="contained" onClick={addTextBox} >add</Button>
+                </Box>
+            </Modal>
         </Box>
+
+
     );
 };
 
