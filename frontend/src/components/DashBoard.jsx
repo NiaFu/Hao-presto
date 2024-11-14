@@ -192,9 +192,9 @@ const DashBoard = () => {
                 <div style={gridStyle}>
                     {Array.isArray(presentations) && presentations.map((presentation) => (
                         <div 
-                            key={presentation.newId} 
+                            key={presentation.id} 
                             style={cardStyle}
-                            onClick={() => handleOpenPresentation(presentation.Id)}
+                            onClick={() => handleOpenPresentation(presentation.id)}
                         >
                             <div style={thumbnailStyle}>
                                 {presentation.thumbnail ? (
@@ -212,31 +212,6 @@ const DashBoard = () => {
                     ))}
                 </div>
             </>
-            
-            {/* current presentation first page
-            {currentPresentation && (
-                <div style={{ marginTop: '20px', width: '80%', textAlign: 'center' }}>
-                    <h2>{currentPresentation.name}</h2>
-                    <div 
-                        style={{
-                            border: '1px solid #ddd',
-                            padding: '50px',
-                            marginTop: '20px',
-                            fontSize: '2rem',
-                            fontWeight: 'bold',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            height: '200px'
-                        }}
-                    >
-                        {currentPresentation.slides[0].content}
-                    </div>
-                    <Button onClick={() => setCurrentPresentation(null)} color="primary" style={{ marginTop: '20px' }}>
-                        Back to Dashboard
-                    </Button>
-                </div>
-            )} */}
 
             {/* Create Handle */}
             <Dialog open={open} onClose={handleClose}>
