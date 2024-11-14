@@ -5,6 +5,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getStore, updateStore } from './dataService';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const modalStyle = {
     position: 'fixed',
@@ -17,6 +18,21 @@ const modalStyle = {
     p: 4,
     borderRadius: '8px',
     textAlign: 'center'
+};
+
+const slideNumberStyle = {
+    position: 'absolute',
+    bottom: '10px',
+    left: '10px',
+    width: '50px',
+    height: '50px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: '1em',
+    color: '#fff',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: '4px'
 };
 
 const SingleSlide = () => {
@@ -73,6 +89,16 @@ const SingleSlide = () => {
 
     return (
         <Box display="flex" flexDirection="column" alignItems="center" sx={{ bgcolor: '#f0f2f5', minHeight: '100vh', p: 4 }}>
+            <Button
+                startIcon={<ArrowBackIcon />}
+                variant="contained"
+                color="primary"
+                sx={{ alignSelf: 'flex-start', mb: 2 }}
+                onClick={() => navigate('/dashboard')}
+            >
+                Back
+            </Button>
+
             <Card sx={{ width: '80%', maxWidth: 600, mb: 4, p: 2, borderRadius: 3, boxShadow: 3 }}>
                 <CardContent>
                     <Typography variant="h5" component="div" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -101,6 +127,7 @@ const SingleSlide = () => {
                     <ArrowBackIosNewIcon />
                 </IconButton>
                 <Box
+                    position="relative"
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
@@ -111,6 +138,7 @@ const SingleSlide = () => {
                     <Typography variant="h6" color="text.secondary">
                         Slide {currentIndex + 1} of {totalSlides}
                     </Typography>
+                    <Box sx={slideNumberStyle}>{currentIndex + 1}</Box> {/* 幻灯片编号 */}
                 </Box>
                 <IconButton onClick={goToNext} disabled={currentIndex === totalSlides - 1} size="large" color="primary">
                     <ArrowForwardIosIcon />
