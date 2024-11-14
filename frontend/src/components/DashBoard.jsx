@@ -141,7 +141,18 @@ const DashBoard = () => {
                 const newId = maxId + 1;
 
                 const thumbnailData = thumbnail ? await getBase64(thumbnail) : null;
-                storeData[newId] = { "title": title, "description": description, "thumbnail": thumbnailData, "slides": [] };
+                // create new pre and first page
+                storeData[newId] = {
+                    title,
+                    description,
+                    thumbnail: thumbnailData,
+                    slides: [
+                        {
+                            id: 1, 
+                            content: "" 
+                        }
+                    ]
+                };
 
                 //Put
                 return updateStore(storeData);
@@ -239,7 +250,6 @@ const DashBoard = () => {
                         Upload Thumbnail
                         <input
                             type="file"
-                            hidden
                             accept="image/*"
                             onChange={handleThumbnailChange}
                         />

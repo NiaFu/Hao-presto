@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { getStore, updateStore } from './dataService';
+import { width } from '@mui/system';
 
 const editTitle = {
     position: 'fixed',
@@ -36,6 +37,9 @@ const SingleSlide = () => {
     const [newThumbnail, setNewThumbnail] = useState(null);
     const [thumbnailPreview, setThumbnailPreview] = useState(null);
 
+    const [currentIndex, setCurrentIndex] = useState(1);
+    const [totalSlides, setTotalSlides] = useState(1);
+
 
     const getPresentation = () => {
         getStore()
@@ -43,6 +47,10 @@ const SingleSlide = () => {
                 const singlePresentation = data.store[id];
                 setPresentation(singlePresentation);
                 setNewTitle(singlePresentation.title);
+
+                const slides = singlePresentation.slides || []; // slides list
+                setTotalSlides(slides.length);
+                setCurrentIndex(1); // reload to first page
             });
     }
 
@@ -119,11 +127,19 @@ const SingleSlide = () => {
             });
     };
 
+    // moving
+    const goToNext = () => {
+        setCurrentIndex(prev => (prev < totalSlides ? prev+1 : prev));
+    }
+
+    const goToPrevious = () => {
+        setCurrentIndex(prev => (prev > 1 ? prev-1 : prev));
+    }
 
     return (
         <>
             {/* top */}
-            <div>
+            <div style={{width : "30%"}}>
                 <Button variant="contained" onClick={() => navigate('/dashboard')}>Back</Button>
                 <Button variant="contained" onClick={(deletePresentation)}>Delete Presentation</Button>
                 <h1>Title:{presentation.title}
@@ -171,6 +187,13 @@ const SingleSlide = () => {
             )}
 
             {/* slide */}
+            <div style={{position:'relative', height: '500px', width: '70%', border: '1px solid black'}}>
+                <div style={{position:'absolute'}}>
+                    <Button variant="outlined" size="small" onClick={goToPrevious}>previous</Button>
+                    <Button variant="outlined" size="small" onClick={goToNext}>next</Button>
+                </div>
+            </div>
+            <h4>{currentIndex}</h4>
             {/* button */}
         </>
     );
