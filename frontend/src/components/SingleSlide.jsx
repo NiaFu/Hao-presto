@@ -211,7 +211,7 @@ const SingleSlide = () => {
                 return {
                     ...slide,
                     content: editingBoxId
-                        ? { ...content, [editingBoxId]: textBox }  // 编辑现有文本框
+                        ? { ...content, [editingBoxId]: textBox } 
                         : { ...content, [`box_${Date.now()}_${Math.floor(Math.random() * 1000)}`]: textBox }  // 新增文本框
                 };
             }
@@ -258,7 +258,7 @@ const SingleSlide = () => {
                 Delete Presentation
             </Button>
 
-            <Card sx={{ width: '80%', maxWidth: 600, mb: 4, p: 2, borderRadius: 3, boxShadow: 3 }}>
+            <Card sx={{ width: '100%', maxWidth: 600, mb: 4, p: 2, borderRadius: 3, boxShadow: 3 }}>
                 <CardContent>
                     <Typography variant="h5" component="div" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         {presentation.title}
@@ -297,10 +297,11 @@ const SingleSlide = () => {
                 <Box
                     position="relative"
                     display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    height="300px"
-                    width="100%"
+                    flexDirection="column"  
+                    alignItems="flex-start"
+                    justifyContent="flex-start"
+                    height="30vh"  
+                    width="100vw" 
                     sx={{ bgcolor: 'white', borderRadius: 2, boxShadow: 3, p: 2 }}
                 >
                     {/* delete slide */}
@@ -326,7 +327,7 @@ const SingleSlide = () => {
                                 <DeleteOutlineIcon />
                             </IconButton>
 
-                            {/* 显示文本框 */}
+                            {/* display text */}
                             {presentation.slides[currentIndex].content &&
                                 Object.entries(presentation.slides[currentIndex].content).map(([key, box]) => (
                                     <Box
