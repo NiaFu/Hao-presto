@@ -127,76 +127,99 @@ const SingleSlide = () => {
             });
     };
 
-    // moving
-    const goToNext = () => {
-        setCurrentIndex(prev => (prev < totalSlides ? prev+1 : prev));
-    }
-
-    const goToPrevious = () => {
-        setCurrentIndex(prev => (prev > 1 ? prev-1 : prev));
-    }
+    const goToNext = () => setCurrentIndex(prev => (prev < totalSlides - 1 ? prev + 1 : prev));
+    const goToPrevious = () => setCurrentIndex(prev => (prev > 0 ? prev - 1 : prev));
 
     return (
-        <>
-            {/* top */}
-            <div style={{width : "30%"}}>
-                <Button variant="contained" onClick={() => navigate('/dashboard')}>Back</Button>
-                <Button variant="contained" onClick={(deletePresentation)}>Delete Presentation</Button>
-                <h1>Title:{presentation.title}
-                    <br />
-                    <Button variant="contained" size="small" onClick={() => setShowEditModal(true)}>Edit</Button>
-                </h1>
-                <Button variant="contained" size="small" onClick={() => setShowThumbnailModal(true)}>Change Thumbnail</Button><br />
-                {presentation.thumbnail && (
-                    <img src={presentation.thumbnail} alt="Thumbnail" style={{ width: '100px', height: '100px', marginTop: '10px' }} />
-                )}
-            </div>
+        <Box display="flex" flexDirection="column" alignItems="center" sx={{ bgcolor: '#f0f2f5', minHeight: '100vh', p: 4 }}>
+            <Card sx={{ width: '80%', maxWidth: 600, mb: 4, p: 2, borderRadius: 3, boxShadow: 3 }}>
+                <CardContent>
+                    <Typography variant="h5" component="div" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        {presentation.title}
+                        <IconButton onClick={() => setShowEditModal(true)} color="primary">
+                            <EditIcon />
+                        </IconButton>
+                    </Typography>
+                    {presentation.thumbnail && (
+                        <CardMedia
+                            component="img"
+                            height="200"
+                            image={presentation.thumbnail}
+                            alt="Presentation Thumbnail"
+                            sx={{ borderRadius: 2, my: 2 }}
+                        />
+                    )}
+                    <Button variant="contained" color="primary" sx={{ mb: 1 }} onClick={() => setShowThumbnailModal(true)}>
+                        Change Thumbnail
+                    </Button>
+                </CardContent>
+            </Card>
 
-            {/* Edit Title Modal */}
-            {showEditModal && (
-                <div style={editTitle}>
-                    <h3>Edit Title</h3>
+            <Box display="flex" alignItems="center" justifyContent="center" width="100%" maxWidth="600px">
+                <IconButton onClick={goToPrevious} disabled={currentIndex === 0} size="large" color="primary">
+                    <ArrowBackIosNewIcon />
+                </IconButton>
+                <Box
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    height="300px"
+                    width="100%"
+                    sx={{ bgcolor: 'white', borderRadius: 2, boxShadow: 3, p: 2 }}
+                >
+                    <Typography variant="h6" color="text.secondary">
+                        Slide {currentIndex + 1} of {totalSlides}
+                    </Typography>
+                </Box>
+                <IconButton onClick={goToNext} disabled={currentIndex === totalSlides - 1} size="large" color="primary">
+                    <ArrowForwardIosIcon />
+                </IconButton>
+            </Box>
+
+            <Modal open={showEditModal} onClose={() => setShowEditModal(false)}>
+                <Box sx={modalStyle}>
+                    <Typography variant="h6" component="h2">Edit Title</Typography>
                     <input
                         type="text"
                         value={newTitle}
                         onChange={(e) => setNewTitle(e.target.value)}
-                        style={{ marginBottom: '10px', padding: '5px', width: '100%' }}
+                        style={{ margin: '10px 0', padding: '10px', width: '100%', borderRadius: '4px', border: '1px solid #ccc' }}
                     />
-                    <br />
-                    <Button variant="contained" onClick={saveTitle}>Save</Button>
-                    <Button variant="text" onClick={() => setShowEditModal(false)}>Cancel</Button>
-                </div>
-            )}
+                    <Button onClick={saveTitle} variant="contained" sx={{ mt: 2 }}>Save</Button>
+                </Box>
+            </Modal>
 
-            {showThumbnailModal && (
-                <div style={ThumbnailModal}>
-                    <h3>Change Thumbnail</h3>
+            <Modal open={showThumbnailModal} onClose={() => setShowThumbnailModal(false)}>
+                <Box sx={modalStyle}>
+                    <Typography variant="h6" component="h2">Change Thumbnail</Typography>
                     <input
                         type="file"
                         accept="image/*"
-                        onChange={handleThumbnailChange}
-                        style={{ marginBottom: '10px' }}
+                        onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                                const reader = new FileReader();
+                                reader.onloadend = () => setThumbnailPreview(reader.result);
+                                reader.readAsDataURL(file);
+                                setNewThumbnail(reader.result);
+                            }
+                        }}
+                        style={{ margin: '10px 0', padding: '10px', width: '100%' }}
                     />
                     {thumbnailPreview && (
-                        <img src={thumbnailPreview} alt="Thumbnail Preview" style={{ width: '100px', height: '100px', marginTop: '10px' }} />
+                        <CardMedia
+                            component="img"
+                            height="150"
+                            image={thumbnailPreview}
+                            alt="Thumbnail Preview"
+                            sx={{ borderRadius: 2, my: 2 }}
+                        />
                     )}
-                    <br />
-                    <Button variant="contained" onClick={saveThumbnail}>Save</Button>
-                    <Button variant="text" onClick={() => setShowThumbnailModal(false)}>Cancel</Button>
-                </div>
-            )}
-
-            {/* slide */}
-            <div style={{position:'relative', height: '500px', width: '70%', border: '1px solid black'}}>
-                <div style={{position:'absolute'}}>
-                    <Button variant="outlined" size="small" onClick={goToPrevious}>previous</Button>
-                    <Button variant="outlined" size="small" onClick={goToNext}>next</Button>
-                </div>
-            </div>
-            <h4>{currentIndex}</h4>
-            {/* button */}
-        </>
+                    <Button onClick={saveThumbnail} variant="contained" sx={{ mt: 2 }}>Save</Button>
+                </Box>
+            </Modal>
+        </Box>
     );
-}
+};
 
 export default SingleSlide;
