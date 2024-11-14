@@ -1,34 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import Button from '@mui/material/Button';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from 'react-router-dom';
+import { Box, Button, Card, CardContent, CardMedia, Typography, Modal, IconButton } from '@mui/material';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import EditIcon from '@mui/icons-material/Edit';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getStore, updateStore } from './dataService';
-import { width } from '@mui/system';
 
-const editTitle = {
+const modalStyle = {
     position: 'fixed',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    backgroundColor: 'white',
-    padding: '20px',
-    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+    width: 400,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+    borderRadius: '8px',
     textAlign: 'center'
-}
-
-const ThumbnailModal = {
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    backgroundColor: 'white',
-    padding: '20px',
-    boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-    textAlign: 'center'
-}
+};
 
 const SingleSlide = () => {
     const { id } = useParams();
-    // console.log(id);
     const navigate = useNavigate();
     const [presentation, setPresentation] = useState({});
     const [showEditModal, setShowEditModal] = useState(false);
@@ -36,10 +28,12 @@ const SingleSlide = () => {
     const [showThumbnailModal, setShowThumbnailModal] = useState(false);
     const [newThumbnail, setNewThumbnail] = useState(null);
     const [thumbnailPreview, setThumbnailPreview] = useState(null);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [totalSlides, setTotalSlides] = useState(0);
 
-    const [currentIndex, setCurrentIndex] = useState(1);
-    const [totalSlides, setTotalSlides] = useState(1);
-
+    useEffect(() => {
+        getPresentation();
+    }, [id]);
 
     const getPresentation = () => {
         getStore()
@@ -48,52 +42,15 @@ const SingleSlide = () => {
                 setPresentation(singlePresentation);
                 setNewTitle(singlePresentation.title);
 
-                const slides = singlePresentation.slides || []; // slides list
+                const slides = singlePresentation.slides || [];
                 setTotalSlides(slides.length);
-                setCurrentIndex(1); // reload to first page
+                setCurrentIndex(0);
             });
-    }
-
-    useEffect(() => {
-        getPresentation();
-    }, [id]);
-
-    const deletePresentation = () => {
-        const confirmHander = window.confirm('Are you sure?');
-        if (confirmHander) {
-            getStore()
-                .then(data => {
-                    delete data.store[id];
-                    console.log(data);
-
-                    //Put
-                    const userToken = localStorage.getItem('token');
-                    fetch('http://localhost:5005/store', {
-                        method: 'PUT',
-                        headers: {
-                            Authorization: `Bearer ${userToken}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ store: data.store }),
-                    })
-                        .then((response) => {
-                            if (!response.ok) {
-                                throw new Error(`HTTP error! Status: ${response.status}`);
-                            }
-                            return response.json();
-                        })
-
-                    navigate('/dashboard');
-                })
-        }
     };
 
     const saveTitle = () => {
-        // reset the title
         setPresentation(prev => ({ ...prev, title: newTitle }));
         setShowEditModal(false);
-
-        // fetch the title
         getStore()
             .then(data => {
                 data.store[id].title = newTitle;
@@ -101,25 +58,9 @@ const SingleSlide = () => {
             });
     };
 
-    const handleThumbnailChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            // load the thumbnail
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setThumbnailPreview(reader.result);
-                setNewThumbnail(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
     const saveThumbnail = () => {
-        // update localdata
         setPresentation(prev => ({ ...prev, thumbnail: newThumbnail }));
         setShowThumbnailModal(false);
-
-        // fetch
         getStore()
             .then(data => {
                 data.store[id].thumbnail = newThumbnail;
