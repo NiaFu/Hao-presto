@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Button, Card, CardContent, CardMedia, Typography, Modal, IconButton } from '@mui/material';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -102,149 +102,139 @@ const SingleSlide = () => {
       });
   };
 
-    // delete the presentation
-    const deletePresentation = () => {
-        const confirmHandler = window.confirm('Are you sure you want to delete this presentation?');
-        if (confirmHandler) {
-            getStore()
-                .then(data => {
-                    delete data.store[id];
-                    return updateStore(data.store);
-                })
-                .then(() => navigate('/dashboard'))
-                .catch(error => console.error("Error deleting presentation:", error));
-        }
+  const deletePresentation = () => {
+    const confirmHandler = window.confirm('Are you sure you want to delete this presentation?');
+    if (confirmHandler) {
+      getStore()
+        .then(data => {
+          delete data.store[id];
+          return updateStore(data.store);
+        })
+        .then(() => navigate('/dashboard'))
+        .catch(error => console.error("Error deleting presentation:", error));
+    }
+  };
+
+  const saveTitle = () => {
+    setPresentation(prev => ({ ...prev, title: newTitle }));
+    setShowEditModal(false);
+    getStore()
+      .then(data => {
+        data.store[id].title = newTitle;
+        return updateStore(data.store);
+      });
+  };
+
+  const saveThumbnail = () => {
+    if (!newThumbnail) {
+      console.error("Thumbnail is not set.");
+      return;
+    }
+
+    setPresentation(prev => ({ ...prev, thumbnail: newThumbnail }));
+    setShowThumbnailModal(false);
+    getStore()
+      .then(data => {
+        data.store[id].thumbnail = newThumbnail;
+        return updateStore(data.store);
+      })
+      .then(() => {
+        console.log("Thumbnail updated successfully on backend.");
+      })
+      .catch(error => console.error("Error updating thumbnail:", error));
+  };
+
+  const handleAddSlide = () => {
+    const maxId = presentation.slides.length > 0
+      ? Math.max(...presentation.slides.map(slide => slide.id))
+      : 0;
+    const newSlide = { id: maxId + 1, content: "" };
+
+    const updatedSlides = [...presentation.slides, newSlide];
+
+    setPresentation(prev => ({ ...prev, slides: updatedSlides }));
+    setTotalSlides(updatedSlides.length);
+    setCurrentIndex(updatedSlides.length - 1);
+
+    getStore()
+      .then(data => {
+        data.store[id].slides = updatedSlides;
+        return updateStore(data.store);
+      })
+      .catch(error => console.error("Error adding new slide:", error));
+  };
+
+  const handleDeleteSlide = () => {
+    if (presentation.slides.length === 1) {
+      alert("Cannot delete the only slide. Please delete the entire presentation.");
+      return;
+    }
+
+    const updatedSlides = presentation.slides.filter((_, index) => index !== currentIndex);
+    const newIndex = currentIndex === 0 ? 0 : currentIndex - 1;
+
+    setPresentation(prev => ({ ...prev, slides: updatedSlides }));
+    setTotalSlides(updatedSlides.length);
+    setCurrentIndex(newIndex);
+
+    getStore()
+      .then(data => {
+        data.store[id].slides = updatedSlides;
+        return updateStore(data.store);
+      })
+      .catch(error => console.error("Error deleting slide:", error));
+  };
+
+  const goToNext = () => setCurrentIndex(prev => (prev < totalSlides - 1 ? prev + 1 : prev));
+  const goToPrevious = () => setCurrentIndex(prev => (prev > 0 ? prev - 1 : prev));
+
+  const handleDoubleClick = (id, box) => {
+    setEditingBoxId(id);
+    setSize(box.size);
+    setText(box.text);
+    setFontSize(box.fontSize);
+    setColor(box.color);
+    handleOpen();
+  };
+
+  const addTextBox = () => {
+    const textBox = {
+      size: size,
+      text: text,
+      fontSize: fontSize,
+      color: color,
+      position: { x: 0, y: 0 }
     };
+    const updatedSlides = presentation.slides.map((slide, index) => {
+      if (index === currentIndex) {
+        const content = slide.content || {};
+        return {
+          ...slide,
+          content: editingBoxId
+            ? { ...content, [editingBoxId]: textBox }
+            : { ...content, [`box_${Date.now()}_${Math.floor(Math.random() * 1000)}`]: textBox }
+        };
+      }
+      return slide;
+    });
 
-    const saveTitle = () => {
-        setPresentation(prev => ({ ...prev, title: newTitle }));
-        setShowEditModal(false);
-        getStore()
-            .then(data => {
-                data.store[id].title = newTitle;
-                return updateStore(data.store);
-            });
-    };
+    setPresentation(prev => ({ ...prev, slides: updatedSlides }));
+    setEditingBoxId(null);
 
-    const saveThumbnail = () => {
-        if (!newThumbnail) {
-            console.error("Thumbnail is not set.");
-            return;
-        }
-
-        setPresentation(prev => ({ ...prev, thumbnail: newThumbnail }));
-        setShowThumbnailModal(false);
-        getStore()
-            .then(data => {
-                data.store[id].thumbnail = newThumbnail;
-                return updateStore(data.store);
-            })
-            .then(() => {
-                console.log("Thumbnail updated successfully on backend.");
-            })
-            .catch(error => console.error("Error updating thumbnail:", error));
-    };
-
-    const handleAddSlide = () => {
-        // set slides id
-        const maxId = presentation.slides.length > 0
-            ? Math.max(...presentation.slides.map(slide => slide.id))
-            : 0;
-        const newSlide = { id: maxId + 1, content: "" };
-
-        const updatedSlides = [...presentation.slides, newSlide];
-
-        // update the slide
-        setPresentation(prev => ({ ...prev, slides: updatedSlides }));
-        setTotalSlides(updatedSlides.length);
-        setCurrentIndex(updatedSlides.length - 1); // update index
-
-        // fetch
-        getStore()
-            .then(data => {
-                data.store[id].slides = updatedSlides;
-                return updateStore(data.store);
-            })
-            .catch(error => console.error("Error adding new slide:", error));
-    };
-
-    // delete slide
-    const handleDeleteSlide = () => {
-        if (presentation.slides.length === 1) {
-            alert("Cannot delete the only slide. Please delete the entire presentation.");
-            return;
-        }
-
-        const updatedSlides = presentation.slides.filter((_, index) => index !== currentIndex);
-        const newIndex = currentIndex === 0 ? 0 : currentIndex - 1;
-
-        setPresentation(prev => ({ ...prev, slides: updatedSlides }));
-        setTotalSlides(updatedSlides.length);
-        setCurrentIndex(newIndex);
-
-        // fetch
-        getStore()
-            .then(data => {
-                data.store[id].slides = updatedSlides;
-                return updateStore(data.store);
-            })
-            .catch(error => console.error("Error deleting slide:", error));
-    };
-
-    const goToNext = () => setCurrentIndex(prev => (prev < totalSlides - 1 ? prev + 1 : prev));
-    const goToPrevious = () => setCurrentIndex(prev => (prev > 0 ? prev - 1 : prev));
-
-    const handleDoubleClick = (id, box) => {
-        setEditingBoxId(id);
-        setSize(box.size);
-        setText(box.text);
-        setFontSize(box.fontSize);
-        setColor(box.color);
-        handleOpen();
-    };
-
-    const addTextBox = () => {
-        // new Id
-        const ElementId = `box_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-        const textBox = {
-            size: size,
-            text: text,
-            fontSize: fontSize,
-            color: color,
-            position: { x: 0, y: 0 }
-        }
-        const updatedSlides = presentation.slides.map((slide, index) => {
-            if (index === currentIndex) {
-                const content = slide.content || {};
-                return {
-                    ...slide,
-                    content: editingBoxId
-                        ? { ...content, [editingBoxId]: textBox } 
-                        : { ...content, [`box_${Date.now()}_${Math.floor(Math.random() * 1000)}`]: textBox }  // 新增文本框
-                };
-            }
-            return slide;
-        });
-
-        // reset
-        setPresentation(prev => ({ ...prev, slides: updatedSlides }));
-        setEditingBoxId(null);
-
-        // fetch
-        getStore()
-            .then(data => {
-                data.store[id].slides = updatedSlides;
-                return updateStore(data.store);
-            })
-            .then(() => {
-                setSize('');
-                setText('');
-                setFontSize('');
-                setColor('');
-                handleClose();
-            })
-            .catch(error => console.error("Error adding text box:", error));
-    };
+    getStore()
+      .then(data => {
+        data.store[id].slides = updatedSlides;
+        return updateStore(data.store);
+      })
+      .then(() => {
+        setSize('');
+        setText('');
+        setFontSize('');
+        setColor('');
+        handleClose();
+      })
+      .catch(error => console.error("Error adding text box:", error));
+  };
 
     return (
         <Box display="flex" flexDirection="column" alignItems="center" sx={{ bgcolor: '#f0f2f5', minHeight: '100vh', p: 4 }}>
