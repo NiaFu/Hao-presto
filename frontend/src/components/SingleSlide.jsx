@@ -236,193 +236,184 @@ const SingleSlide = () => {
       .catch(error => console.error("Error adding text box:", error));
   };
 
-    return (
-        <Box display="flex" flexDirection="column" alignItems="center" sx={{ bgcolor: '#f0f2f5', minHeight: '100vh', p: 4 }}>
-            <Button
-                startIcon={<ArrowBackIcon />}
-                variant="contained"
-                color="primary"
-                sx={{ alignSelf: 'flex-start', mb: 2 }}
-                onClick={() => navigate('/dashboard')}
-            >
-                Back
-            </Button>
-            <Button
-                startIcon={<DeleteIcon />}
-                variant="outlined"
-                color="secondary"
-                onClick={deletePresentation}
-            >
-                Delete Presentation
-            </Button>
+  return (
+    <Box display="flex" flexDirection="column" alignItems="center" sx={{ bgcolor: '#f0f2f5', minHeight: '100vh', p: 4 }}>
+      <Button
+        startIcon={<ArrowBackIcon />}
+        variant="contained"
+        color="primary"
+        sx={{ alignSelf: 'flex-start', mb: 2 }}
+        onClick={() => navigate('/dashboard')}
+      >
+        Back
+      </Button>
+      <Button
+        startIcon={<DeleteIcon />}
+        variant="outlined"
+        color="secondary"
+        onClick={deletePresentation}
+      >
+        Delete Presentation
+      </Button>
 
-            <Card sx={{ width: '100%', maxWidth: 600, mb: 4, p: 2, borderRadius: 3, boxShadow: 3 }}>
-                <CardContent>
-                    <Typography variant="h5" component="div" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        {presentation.title}
-                        <IconButton onClick={() => setShowEditModal(true)} color="primary">
-                            <EditIcon />
-                        </IconButton>
-                    </Typography>
-                    {presentation.thumbnail && (
-                        <CardMedia
-                            component="img"
-                            height="200"
-                            image={presentation.thumbnail}
-                            alt="Presentation Thumbnail"
-                            sx={{ borderRadius: 2, my: 2 }}
-                        />
-                    )}
-                    <Button variant="contained" color="primary" sx={{ mb: 1 }} onClick={() => setShowThumbnailModal(true)}>
-                        Change Thumbnail
-                    </Button>
-                    <br />
-                    <Button
-                        startIcon={<AddIcon />}
-                        variant="contained"
-                        color="success"
-                        onClick={handleAddSlide}
-                    >
-                        New Slide
-                    </Button>
-                </CardContent>
-            </Card>
+      <Card sx={{ width: '100%', maxWidth: 600, mb: 4, p: 2, borderRadius: 3, boxShadow: 3 }}>
+        <CardContent>
+          <Typography variant="h5" component="div" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            {presentation.title}
+            <IconButton onClick={() => setShowEditModal(true)} color="primary">
+              <EditIcon />
+            </IconButton>
+          </Typography>
+          {presentation.thumbnail && (
+            <CardMedia
+              component="img"
+              height="200"
+              image={presentation.thumbnail}
+              alt="Presentation Thumbnail"
+              sx={{ borderRadius: 2, my: 2 }}
+            />
+          )}
+          <Button variant="contained" color="primary" sx={{ mb: 1 }} onClick={() => setShowThumbnailModal(true)}>
+            Change Thumbnail
+          </Button>
+          <br />
+          <Button
+            startIcon={<AddIcon />}
+            variant="contained"
+            color="success"
+            onClick={handleAddSlide}
+          >
+            New Slide
+          </Button>
+        </CardContent>
+      </Card>
 
-            <Box display="flex" alignItems="center" justifyContent="center" width="100%" maxWidth="600px">
-                <IconButton onClick={goToPrevious} disabled={currentIndex === 0} size="large" color="primary">
-                    <ArrowBackIosNewIcon />
-                </IconButton>
-                <Box
-                    position="relative"
-                    display="flex"
-                    flexDirection="column"  
-                    alignItems="flex-start"
-                    justifyContent="flex-start"
-                    height="30vh"  
-                    width="90vw" 
-                    sx={{ bgcolor: 'white', borderRadius: 2, boxShadow: 3, p: 2 }}
-                >
-                    {/* delete slide */}
-                    <IconButton
-                        onClick={handleDeleteSlide}
-                        color="error"
-                        sx={{ position: 'absolute', top: '10px', right: '10px' }}
-                    >
-                        <DeleteOutlineIcon />
-                    </IconButton>
-                    {/* index */}
-                    <Box sx={slideNumberStyle}>{currentIndex + 1}</Box> {/* slide number */}
-
-                    {/* display TextBox */}
-                    {presentation.slides && presentation.slides[currentIndex] ? (
-                        <>
-                            {/* delete slide button */}
-                            <IconButton
-                                onClick={handleDeleteSlide}
-                                color="error"
-                                sx={{ position: 'absolute', top: '10px', right: '10px' }}
-                            >
-                                <DeleteOutlineIcon />
-                            </IconButton>
-
-                            {/* display text */}
-                            {presentation.slides[currentIndex].content &&
-                                Object.entries(presentation.slides[currentIndex].content).map(([key, box]) => (
-                                    <Box
-                                        key={key}
-                                        sx={{
-                                            position: 'relative',
-                                            textAlign: 'left',
-                                            overflow: 'hidden',
-                                            whiteSpace: 'nowrap',
-                                            textOverflow: 'ellipsis',
-                                            fontSize: `${box.fontSize}em`,
-                                            color: box.color,
-                                            width: `${box.size}%`,
-                                            border: '1px solid #ccc',
-                                            padding: '4px',
-                                            marginBottom: '4px'
-                                        }}
-                                        onDoubleClick={() => handleDoubleClick(key, box)}
-                                    >
-                                        {box.text}
-                                    </Box>
-                                ))}
-                        </>
-                    ) : (
-                        <Typography variant="body1" color="textSecondary">No slide content available.</Typography>
-                    )}
-                </Box>
-                <IconButton onClick={goToNext} disabled={currentIndex === totalSlides - 1} size="large" color="primary">
-                    <ArrowForwardIosIcon />
-                </IconButton>
-            </Box>
-
-            <Modal open={showEditModal} onClose={() => setShowEditModal(false)}>
-                <Box sx={modalStyle}>
-                    <Typography variant="h6" component="h2">Edit Title</Typography>
-                    <input
-                        type="text"
-                        value={newTitle}
-                        onChange={(e) => setNewTitle(e.target.value)}
-                        style={{ margin: '10px 0', padding: '10px', width: '100%', borderRadius: '4px', border: '1px solid #ccc' }}
-                    />
-                    <Button onClick={saveTitle} variant="contained" sx={{ mt: 2 }}>Save</Button>
-                </Box>
-            </Modal>
-
-            <Modal open={showThumbnailModal} onClose={() => setShowThumbnailModal(false)}>
-                <Box sx={modalStyle}>
-                    <Typography variant="h6" component="h2">Change Thumbnail</Typography>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                            const file = e.target.files[0];
-                            if (file) {
-                                const reader = new FileReader();
-                                reader.onloadend = () => {
-                                    setThumbnailPreview(reader.result); 
-                                    setNewThumbnail(reader.result);     
-                                };
-                                reader.readAsDataURL(file);
-                                setNewThumbnail(reader.result);
-                            }
-                        }}
-                        style={{ margin: '10px 0', padding: '10px', width: '100%' }}
-                    />
-                    {thumbnailPreview && (
-                        <CardMedia
-                            component="img"
-                            height="150"
-                            image={thumbnailPreview}
-                            alt="Thumbnail Preview"
-                            sx={{ borderRadius: 2, my: 2 }}
-                        />
-                    )}
-                    <Button onClick={saveThumbnail} variant="contained" sx={{ mt: 2 }}>Save</Button>
-                </Box>
-            </Modal>
-
-            <Button onClick={handleOpen}>Create Text</Button>
-            <Modal
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-            >
-                <Box sx={createTextStyle}>
-                    size (%): <input type='text' onChange={(e) => setSize(e.target.value)} value={size} /> <br />
-                    text: <input type='text' onChange={(e) => setText(e.target.value)} value={text} /> <br />
-                    font size (em): <input type='text' onChange={(e) => setFontSize(e.target.value)} value={fontSize} /> <br />
-                    color (HEX): <input type='text' onChange={(e) => setColor(e.target.value)} value={color} /> <br />
-                    <Button variant="contained" onClick={addTextBox} >add</Button>
-                </Box>
-            </Modal>
+      <Box display="flex" alignItems="center" justifyContent="center" width="100%" maxWidth="600px">
+        <IconButton onClick={goToPrevious} disabled={currentIndex === 0} size="large" color="primary">
+          <ArrowBackIosNewIcon />
+        </IconButton>
+        <Box
+          position="relative"
+          display="flex"
+          flexDirection="column"
+          alignItems="flex-start"
+          justifyContent="flex-start"
+          height="30vh"
+          width="90vw"
+          sx={{ bgcolor: 'white', borderRadius: 2, boxShadow: 3, p: 2 }}
+        >
+          <IconButton
+            onClick={handleDeleteSlide}
+            color="error"
+            sx={{ position: 'absolute', top: '10px', right: '10px' }}
+          >
+            <DeleteOutlineIcon />
+          </IconButton>
+          <Box sx={slideNumberStyle}>{currentIndex + 1}</Box>
+          {presentation.slides && presentation.slides[currentIndex] ? (
+            <>
+              <IconButton
+                onClick={handleDeleteSlide}
+                color="error"
+                sx={{ position: 'absolute', top: '10px', right: '10px' }}
+              >
+                <DeleteOutlineIcon />
+              </IconButton>
+              {presentation.slides[currentIndex].content &&
+                Object.entries(presentation.slides[currentIndex].content).map(([key, box]) => (
+                  <Box
+                    key={key}
+                    sx={{
+                      position: 'relative',
+                      textAlign: 'left',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
+                      fontSize: `${box.fontSize}em`,
+                      color: box.color,
+                      width: `${box.size}%`,
+                      border: '1px solid #ccc',
+                      padding: '4px',
+                      marginBottom: '4px'
+                    }}
+                    onDoubleClick={() => handleDoubleClick(key, box)}
+                  >
+                    {box.text}
+                  </Box>
+                ))}
+            </>
+          ) : (
+            <Typography variant="body1" color="textSecondary">No slide content available.</Typography>
+          )}
         </Box>
+        <IconButton onClick={goToNext} disabled={currentIndex === totalSlides - 1} size="large" color="primary">
+          <ArrowForwardIosIcon />
+        </IconButton>
+      </Box>
 
+      <Modal open={showEditModal} onClose={() => setShowEditModal(false)}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6" component="h2">Edit Title</Typography>
+          <input
+            type="text"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            style={{ margin: '10px 0', padding: '10px', width: '100%', borderRadius: '4px', border: '1px solid #ccc' }}
+          />
+          <Button onClick={saveTitle} variant="contained" sx={{ mt: 2 }}>Save</Button>
+        </Box>
+      </Modal>
 
-    );
+      <Modal open={showThumbnailModal} onClose={() => setShowThumbnailModal(false)}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6" component="h2">Change Thumbnail</Typography>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                  setThumbnailPreview(reader.result);
+                  setNewThumbnail(reader.result);
+                };
+                reader.readAsDataURL(file);
+                setNewThumbnail(reader.result);
+              }
+            }}
+            style={{ margin: '10px 0', padding: '10px', width: '100%' }}
+          />
+          {thumbnailPreview && (
+            <CardMedia
+              component="img"
+              height="150"
+              image={thumbnailPreview}
+              alt="Thumbnail Preview"
+              sx={{ borderRadius: 2, my: 2 }}
+            />
+          )}
+          <Button onClick={saveThumbnail} variant="contained" sx={{ mt: 2 }}>Save</Button>
+        </Box>
+      </Modal>
+
+      <Button onClick={handleOpen}>Create Text</Button>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={createTextStyle}>
+          size (%): <input type='text' onChange={(e) => setSize(e.target.value)} value={size} /> <br />
+          text: <input type='text' onChange={(e) => setText(e.target.value)} value={text} /> <br />
+          font size (em): <input type='text' onChange={(e) => setFontSize(e.target.value)} value={fontSize} /> <br />
+          color (HEX): <input type='text' onChange={(e) => setColor(e.target.value)} value={color} /> <br />
+          <Button variant="contained" onClick={addTextBox}>Add</Button>
+        </Box>
+      </Modal>
+    </Box>
+  );
 };
 
 export default SingleSlide;
