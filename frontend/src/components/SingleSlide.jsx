@@ -11,97 +11,96 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 const modalStyle = {
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
-    borderRadius: '8px',
-    textAlign: 'center'
+  position: 'fixed',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  boxShadow: 24,
+  p: 4,
+  borderRadius: '8px',
+  textAlign: 'center',
 };
 
 const slideNumberStyle = {
-    position: 'absolute',
-    bottom: '10px',
-    left: '10px',
-    width: '50px',
-    height: '50px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '1em',
-    color: '#fff',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: '4px'
+  position: 'absolute',
+  bottom: '10px',
+  left: '10px',
+  width: '50px',
+  height: '50px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '1em',
+  color: '#fff',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  borderRadius: '4px',
 };
 
 const createTextStyle = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
 };
 
 const SingleSlide = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const [presentation, setPresentation] = useState({});
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [newTitle, setNewTitle] = useState("");
-    const [showThumbnailModal, setShowThumbnailModal] = useState(false);
-    const [newThumbnail, setNewThumbnail] = useState(null);
-    const [thumbnailPreview, setThumbnailPreview] = useState(null);
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [totalSlides, setTotalSlides] = useState(0);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [presentation, setPresentation] = useState({});
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [showThumbnailModal, setShowThumbnailModal] = useState(false);
+  const [newThumbnail, setNewThumbnail] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [totalSlides, setTotalSlides] = useState(0);
 
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
-    const [size, setSize] = useState('');
-    const [text, setText] = useState('');
-    const [fontSize, setFontSize] = useState('');
-    const [color, setColor] = useState('');
-    const [editingBoxId, setEditingBoxId] = useState(null);
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const [size, setSize] = useState('');
+  const [text, setText] = useState('');
+  const [fontSize, setFontSize] = useState('');
+  const [color, setColor] = useState('');
+  const [editingBoxId, setEditingBoxId] = useState(null);
 
-    useEffect(() => {
-        getPresentation();
+  useEffect(() => {
+    getPresentation();
 
-        // listener
-        const handleKeyDown = (event) => {
-            if (event.key === 'ArrowRight') {
-                goToNext();
-            } else if (event.key === 'ArrowLeft') {
-                goToPrevious();
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [id]);
-
-    const getPresentation = () => {
-        getStore()
-            .then(data => {
-                const singlePresentation = data.store[id];
-                setPresentation(singlePresentation);
-                setNewTitle(singlePresentation.title);
-
-                const slides = singlePresentation.slides || [];
-                setTotalSlides(slides.length);
-                setCurrentIndex(0);
-            });
+    const handleKeyDown = (event) => {
+      if (event.key === 'ArrowRight') {
+        goToNext();
+      } else if (event.key === 'ArrowLeft') {
+        goToPrevious();
+      }
     };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [id]);
+
+  const getPresentation = () => {
+    getStore()
+      .then(data => {
+        const singlePresentation = data.store[id];
+        setPresentation(singlePresentation);
+        setNewTitle(singlePresentation.title);
+
+        const slides = singlePresentation.slides || [];
+        setTotalSlides(slides.length);
+        setCurrentIndex(0);
+      });
+  };
 
     // delete the presentation
     const deletePresentation = () => {
