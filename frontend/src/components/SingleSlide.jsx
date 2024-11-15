@@ -128,13 +128,22 @@ const SingleSlide = () => {
     };
 
     const saveThumbnail = () => {
+        if (!newThumbnail) {
+            console.error("Thumbnail is not set.");
+            return;
+        }
+
         setPresentation(prev => ({ ...prev, thumbnail: newThumbnail }));
         setShowThumbnailModal(false);
         getStore()
             .then(data => {
                 data.store[id].thumbnail = newThumbnail;
                 return updateStore(data.store);
-            });
+            })
+            .then(() => {
+                console.log("Thumbnail updated successfully on backend.");
+            })
+            .catch(error => console.error("Error updating thumbnail:", error));
     };
 
     const handleAddSlide = () => {
@@ -301,7 +310,7 @@ const SingleSlide = () => {
                     alignItems="flex-start"
                     justifyContent="flex-start"
                     height="30vh"  
-                    width="100vw" 
+                    width="90vw" 
                     sx={{ bgcolor: 'white', borderRadius: 2, boxShadow: 3, p: 2 }}
                 >
                     {/* delete slide */}
@@ -383,7 +392,10 @@ const SingleSlide = () => {
                             const file = e.target.files[0];
                             if (file) {
                                 const reader = new FileReader();
-                                reader.onloadend = () => setThumbnailPreview(reader.result);
+                                reader.onloadend = () => {
+                                    setThumbnailPreview(reader.result); 
+                                    setNewThumbnail(reader.result);     
+                                };
                                 reader.readAsDataURL(file);
                                 setNewThumbnail(reader.result);
                             }

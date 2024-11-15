@@ -31,6 +31,7 @@ export const updateStore = (updatedStore) => {
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
+            console.log('Updated store')
             return response.json();
         })
         .catch(error => {
