@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import SigninForm from './components/SigninForm';
@@ -21,24 +19,19 @@ const welcomeStyle = {
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
-  
+
   return (
-    <>
     <BrowserRouter>
-
-    <LogOut token = {token} setToken = {setToken}/>
-
-    <Routes>
-    <Route path="/" element={<div style={welcomeStyle}>Welcome Back PRESTO!</div>} />
-      <Route path="/login" element={<SigninForm setToken = {setToken} />}></Route> 
-      <Route path="/register" element={<SignupForm setToken = {setToken}/>}></Route>
-      <Route path="/dashboard" element={<DashBoard/>}></Route>
-      <Route path="/edit/:id" element={<SingleSlide/>}></Route>
-    </Routes>
-
+      <LogOut token={token} setToken={setToken} />
+      <Routes>
+        <Route path="/" element={<div style={welcomeStyle}>Welcome Back PRESTO!</div>} />
+        <Route path="/login" element={<SigninForm setToken={setToken} />} />
+        <Route path="/register" element={<SignupForm setToken={setToken} />} />
+        <Route path="/dashboard" element={<DashBoard />} />
+        <Route path="/edit/:id" element={<SingleSlide />} />
+      </Routes>
     </BrowserRouter>
-    </>
-  )
+  );
 }
 
-export default App
+export default App;
