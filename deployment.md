@@ -257,8 +257,8 @@ Unlike the backend, it's easy to deploy your frontend. You can simply perform th
 
 - Go to Settings > Git. Scroll down to Production Branch and change the name of the branch.
 - Additionally if you go to the Deployments tab, you may see that it says Preview, like in the image below. For the latest deployment, click on the ellipse icon (three horizontal dots) on the very right and click 'Promote to production'.
-![image](assets/5.9.deploy.preview.png)
-</details>
+  ![image](assets/5.9.deploy.preview.png)
+  </details>
 
   <details close>
   <summary> 4. You're getting a 404 error </summary>
