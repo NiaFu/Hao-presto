@@ -157,15 +157,10 @@ const DashBoard = () => {
         </Button>
       </div>
 
-
-                {/* pre list */}
       <div style={gridStyle}>
-                    {Array.isArray(presentations) && presentations.map((presentation) => (
-                        <div
-                            key={presentation.id}
-                            style={cardStyle}
-                            onClick={() => handleOpenPresentation(presentation.id)}
-                        >
+        {Array.isArray(presentations) &&
+          presentations.map((presentation) => (
+            <div key={presentation.id} style={cardStyle} onClick={() => handleOpenPresentation(presentation.id)}>
               <div style={thumbnailStyle}>
                 {presentation.thumbnail ? (
                   <img src={presentation.thumbnail} alt="Thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -185,46 +180,22 @@ const DashBoard = () => {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Create New Presentation</DialogTitle>
         <DialogContent>
-                    <DialogContentText>
-                        Enter the details for your new presentation below.
-                    </DialogContentText>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="Name"
-                        type="text"
-                        fullWidth
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Description"
-                        type="text"
-                        fullWidth
-                        multiline
-                        rows={4}
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                    />
-                    <Button
-                        variant="contained"
-                        component="label"
-                        startIcon={<PhotoCamera />}
-                        style={{ marginTop: '10px' }}
-                    >
+          <DialogContentText>Enter the details for your new presentation below.</DialogContentText>
+          <TextField autoFocus margin="dense" label="Name" type="text" fullWidth value={name} onChange={(e) => setName(e.target.value)} />
+          <TextField margin="dense" label="Description" type="text" fullWidth multiline rows={4} value={description} onChange={(e) => setDescription(e.target.value)} />
+          <Button variant="contained" component="label" startIcon={<PhotoCamera />} style={{ marginTop: '10px' }}>
             Upload Thumbnail
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleThumbnailChange}
-                        />
+            <input type="file" accept="image/*" onChange={handleThumbnailChange} />
           </Button>
           {thumbnail && <p>Selected file: {thumbnail.name}</p>}
         </DialogContent>
         <DialogActions>
-                    <Button onClick={handleClose} color="primary">Cancel</Button>
-                    <Button onClick={() => postnew(name, description, thumbnail)} color="primary" variant="contained">Create</Button>
+          <Button onClick={handleClose} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={() => postnew(name, description, thumbnail)} color="primary" variant="contained">
+            Create
+          </Button>
         </DialogActions>
       </Dialog>
     </div>
